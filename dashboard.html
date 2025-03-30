@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Digital Wallet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Digital Wallet</a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-item nav-link text-white">Welcome, {{ current_user.username }}</span>
+                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Balance</h5>
+                        <h2 class="text-primary">${{ "%.2f"|format(current_user.balance) }}</h2>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Deposit</h5>
+                        <form action="{{ url_for('deposit') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="depositAmount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" class="form-control" id="depositAmount" name="amount" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="depositDescription" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="depositDescription" name="description">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Deposit</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Withdraw</h5>
+                        <form action="{{ url_for('withdraw') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="withdrawAmount" class="form-label">Amount</label>
+                                <input type="number" step="0.01" class="form-control" id="withdrawAmount" name="amount" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="withdrawDescription" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="withdrawDescription" name="description">
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Withdraw</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Transaction History</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                    <tr>
+                                        <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ transaction.description or 'No description' }}</td>
+                                        <td class="{% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            ${{ "%.2f"|format(transaction.amount) }}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No transactions yet</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
